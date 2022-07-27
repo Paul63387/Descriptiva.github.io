@@ -1,0 +1,578 @@
+---
+title: "Estadística Descriptiva"
+output: 
+  html_document:
+    toc_float: true
+    toc: true
+    code_folding: show #show
+    theme:
+      bootswatch: "lux"
+      font_scale: 1
+      enable-gradients: "TRUE"
+      enable-shadows: "TRUE"
+      base_font:
+        google: Prompt
+      heading_font:
+        google: Proza Libre
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+if (requireNamespace("thematic")) 
+  thematic::thematic_rmd(font = "auto")
+knitr::opts_chunk$set(fig.retina=2, 
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.dim = c(6,4))
+library(ggplot2)
+library(dplyr)
+df<- data.frame(Titanic)
+```
+
+La **Estadística** es una ciencia que recoge, organiza, presenta, analiza e interpreta datos con el fin de propiciar la toma de decisiones más eficaz. 
+
+Cuando realizamos calculos a una **Población** estos se llaman **Parámetros** los mismos que se representan con letras griegas, ejemplo:
+
+$$
+\mu = media \space poblacional \\
+\sigma = desviación \space estándar \space poblacional
+$$
+
+De igual manera cuando se saca una muestra representativa de la población los cálculos realizados a esta muestra se llaman **Estadísticos** los mismos que se representan con letras romanas, ejemplo
+
+$$
+\bar{x} = media \space muestral \\
+s= desviación \space estándar \space muestral
+$$
+
+> Para los ejemplos realizaremos un análisis al dataset de Titanic el cual contiene información de los pasajeros del RMS Titanic el transatlántico que se hundió en abril de 1912.
+
+## Medidas de tendencia central {.tabset .tabset-pills}
+
+Estas medidas hacen referencia a la centralidad de una variable.
+
+### Moda
+
+Es el valor que ocurre con mayor frecuencia.
+
+```{r}
+df %>% 
+  group_by(Class) %>% 
+  summarise(Frecuencia = sum(Freq, na.rm = TRUE)) %>% 
+  ggplot(aes(Class, Frecuencia, fill = Class, ymax= max(Frecuencia+50)))+
+  geom_bar(stat = "identity")+
+  labs(title = "Frecuencia de Pasajeros según su Clase",
+       x = "Clase",
+       y = "Frecuencia",
+       subtitle = "La moda en este caso es la Crew o Tripulación",
+       fill = "Clase")+
+  theme_minimal()+
+  scale_fill_brewer(palette = "BrBG")+
+  theme(plot.title = element_text(hjust = 0.5, size = 16))+
+  geom_text(aes(label = Frecuencia, group = Class), vjust = -0.6, size = 3)+
+  scale_y_continuous(limits = c(0,900), breaks = seq(0,900,100))
+```
+
+
+### Mediana
+
+Es el valor medio de las observaciones cuando estas se ordenan de menor a mayor. Es el valor de la mitad.
+
+Supongamos que se pregunta a 10 personas, cuanto les simpatiza del 1 al 10 la película del Titanic, obteniendo los siguientes datos:
+
+```{r}
+Encuestados <- c("Encuestado 1",
+                 "Encuestado 2",
+                 "Encuestado 3",
+                 "Encuestado 4",
+                 "Encuestado 5",
+                 "Encuestado 6",
+                 "Encuestado 7",
+                 "Encuestado 8",
+                 "Encuestado 9")
+Respuestas <- sample(seq(1,10,1),size = 9, replace = T)
+datos <- data.frame(Encuestados, Respuestas);datos
+```
+
+Primero tenemos que ordenarlos de menos a mayor
+
+```{r}
+datos<- arrange(datos, Respuestas);datos # ordenamos de menos a mayor
+```
+
+Si nosotros tachamos 4 arriba y cuatro a bajo tendríamos en valor de la **Mediana**
+
+```{r}
+tachados <- c("-","-","-","-", "Mediana", "-", "-", "-","-")
+datos$Tachados <- tachados;datos
+```
+
+Para dicha base la mediana es 6 es decir el punto medio de los datos es el **6**. Dado el caso de que el número de observaciones sean par, se sacaría el promedio entre los valores medios como se ve a continuación:
+
+```{r}
+Encuestados <- c("Encuestado 1",
+                 "Encuestado 2",
+                 "Encuestado 3",
+                 "Encuestado 4",
+                 "Encuestado 5",
+                 "Encuestado 6",
+                 "Encuestado 7",
+                 "Encuestado 8",
+                 "Encuestado 9",
+                 "Encuestado 10")
+Respuestas <- sample(seq(1,10,1),size = 10, replace = T)
+datos <- data.frame(Encuestados, Respuestas)
+datos<- arrange(datos, Respuestas) # ordenamos de menos a mayor
+tachados <- c("-","-","-","-", "Valor 1", "Valor 2", "-", "-", "-","-")
+datos$Tachados <- tachados;datos
+```
+
+Entre los dos valores se realizaria un promedio $\frac{Valor1+Valor2}{2}$. De esta manera se encuentra el valor medio de los datos con un $n = par$
+
+### Media
+
+Este es el valor que indica el punto de balance de los datos.
+
+$$
+Media \space Poblacional = \mu=\frac{\sum x}{N}\\
+Media \space Poblacional = \bar{x}=\frac{\sum x}{n}
+$$
+
+Para el caso anterior tenemos que:
+
+```{r}
+media <- sum(datos$Respuestas)/length(datos$Respuestas); paste("Media = ", round(media,2), sep = "")
+```
+
+o si se utiliza la función de R (mean)
+
+```{r}
+mean(datos$Respuestas)
+```
+
+> Resumir la información: Una de las preguntas que nos debemos hacer es ¿Cuándo calculamos cada medida?. La respuesta a esto es depende del tipo de variable que tengamos ya que si el dato es nominal u ordinal podemos calcular la moda pero no la media ni la mediana y si el datos es continuo o discreto podemos calcular las 3 medidas.
+
+## Valores atípicos
+
+Este es uno de los aspectos más importantes al momento de tratar de describir la información ya que esta se puede ver sesgada y presentar información falsa. Cuando se habla de datos atípicos existe un sinnúmero de métodos y formas de detectar y tratar este tipo de información al igual que la información NA (datos perdidos) y los NULL(ausencia de datos). Lo importante es saber que la **media** es una medida que es sensible a la presencia de datos atípicos para lo cual se debe elegir otras medidas que no sean afectadas por los datos atípicos como la **mediana**, esto es una pequeña porción de la llamada **estadística robusta**. Veamos un ejemplo:
+
+Supongamos que nos encontramos en el restaurante del Titanic y tenemos los siguientes datos:
+
+```{r}
+ejemplo1 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descriptiva\\Ejercicios.xlsx",
+                                sheet = "MTC",
+                                rows = c(4:12),
+                                cols = c(8:10))
+ejemplo1 <- ejemplo1 %>% rename(Clientes = X2, N=X1);ejemplo1
+```
+
+Una vez observados los datos vamos a calcular la media y la mediana:
+
+```{r}
+media1 <- mean(ejemplo1$Ingresos)
+mediana1 <- median(ejemplo1$Ingresos)
+(Con_Galton <- paste("Media = ", media1, " y ","Mediana = ",mediana1,sep = ""))
+```
+
+Como podemos ver el cliente Galton tiene un ingreso mucho mayor que los demás y por la presencia de este dato la **Media** del grupo es mucho mas elevada que la **mediana**. Ahora si nosotros quitamos a galton veamos cuanto es la media y la mediana
+
+```{r}
+ejemplo2 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descriptiva\\Ejercicios.xlsx",
+                                sheet = "MTC",
+                                rows = c(4:11),
+                                cols = c(1:3))
+ejemplo2 <- ejemplo2 %>% rename(Clientes = X2, N=X1)
+media2 <- mean(ejemplo2$Ingresos)
+mediana2 <- median(ejemplo2$Ingresos)
+(Sin_Galton <- paste("Media = ",  round(media2, 0), " y ","Mediana = ",mediana2,sep = ""))
+```
+
+Podemos observar que de alguna manera la media y la mediana son casí iguales y si comparamos con los datos anteriores tenemos que:
+
+```{r}
+c <- rbind(Con_Galton,Sin_Galton);c
+```
+
+Entonces, como vemos en el primer caso la mediana se acerca al valor real de la media sin Galton y la mediana es la que es menos propensa a resivir un cambio por datos atípicos.
+
+## Datos Agrupados (DA) {.tabset .tabset-pills}
+
+En ocasiones tenemos información que nos entrega en datos agrupado, cuando este es el caso tenemos que tratarlos como tales y no como datos puntuales. A continuación veremos una tabla de datos agrupado.
+
+```{r}
+ejemplo3 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descriptiva\\Ejercicios.xlsx",
+                                sheet = "MTC",
+                                rows = c(17:27),
+                                cols = c(1:2))
+ejemplo3
+```
+
+### Moda DA
+
+La formula de la **moda** para datos agrupados es la siguiente:
+$$
+M_o = L_{M_o}+\left(\frac{d_1}{d_1+d_2}\right)w
+$$
+
+* $L_{M_o} = $Limite inferior de la clase modal
+* $d_1 = $Frecuencia de la clase modal $-$ Una frecuencia antes de la clase modal
+* $d_2 = $Frecuencia de la clase modal $-$ Una frecuencia despues de la clase modal
+* $w = $Ancho del intervalo o $L_s-L_i$
+
+Según los datos proporcionados tenemos lo siguiente:
+
+* $L_{M_o} = 100$
+* $d_1 = 187-123 = 64$
+* $d_2 = 187 - 82 = 105$
+* $w = 149.99 - 100 = 49.99$
+
+$$
+M_o = L_{M_o}+\left(\frac{d_1}{d_1+d_2}\right)w = 100+\left(\frac{64}{64+105}\right)49.99= 118.93 \sim 119
+$$
+
+La **moda** para los datos agrupados es de 119.
+
+### Mediana DA
+
+La formula de la **mediana** para datos agrupados es la siguiente:
+
+$$
+\tilde{m}= \left(\frac{\frac{(n+1)}{2}-(F+1)}{f_m}\right)w+L_m
+$$
+
+* $n = $ Número total de elementos de la distribución
+* $F = $ La suma de las frecuencias antes de la clase de la mediana
+* $f_m = $ Frecuencia de la clase de la mediana
+* $w = $ Ancho del intervalo
+* $L_m = $ Límite inferior de la clase de la mediana
+
+Según los datos proporcionados tenemos lo siguiente:
+
+* $n = 600$ 
+* $F = 201$ 
+* $f_m = 187$ 
+* $w = 49.99$
+* $L_m = 100$
+
+$$
+\tilde{m}= \left(\frac{\frac{(n+1)}{2}-(F+1)}{f_m}\right)w+L_m \\
+= \left(\frac{\frac{(600+1)}{2}-(201+1)}{187}\right)49.99+100\\
+\tilde{m} = 126.33
+$$
+
+### Media DA
+
+La formula de la **media** para datos agrupados es la siguiente:
+
+$$
+\tilde{X} = \frac{\sum (f \times x_i)}{n}
+$$
+
+* $n = $ Número de observaciones
+* $f = $ Frecuencia de las observaciones
+* $x_i = $ Marca de clase o punto medio de los intervalos
+
+Según los datos proporcionados tenemos lo siguiente:
+
+```{r}
+library(tidyr)
+ejemplo3 <- ejemplo3 %>% separate(`Clase.(dólares)`,
+                      into = c("Li","Ls"),
+                      sep = "-")
+
+
+ejemplo3$Li <- as.numeric(ejemplo3$Li)
+ejemplo3$Ls <- gsub(",",".",ejemplo3$Ls)
+ejemplo3$Ls <- as.numeric(ejemplo3$Ls, sep = ",")
+ejemplo3$Frecuencia <- as.numeric(ejemplo3$Frecuencia)
+
+ejemplo3 <- ejemplo3 %>% 
+  mutate(MClase = (Li+Ls)/2,
+         frec_x_mc = Frecuencia*MClase);ejemplo3
+```
+
+* $n = 600$ 
+* $\sum (f*x) = 85345.02$ 
+ 
+$$
+\tilde{X} = \frac{\sum (f \times x_i)}{n} = \frac{85345.02}{600}=142.24
+$$
+
+## Medidas de Posición
+
+En muchas ocasiones pueden ser llamados fractiles, fracción o proporción de los datos. para lo cual tienen nombres especiales como:
+
+* Cuartiles (4 partes)
+* Quintiles (5 partes)
+* Deciles (10 partes)
+* Percentiles (100 partes)
+
+Para realizar dichos calculos tenemos 2 pasos importantes:
+
+- Ordenar los datos de forma ascendente
+- Calcular el índice $i$, tomando encuenta que será la posición del fractil.
+
+Donde:
+
+$$
+i = \left(\frac{p}{100}\right)n \space ; \space si \space i = Entero, \space sacamos \space el \space promedio \space de \space i \space e \space i+1\\
+; \space si \space i = No \space es \space Entero, \space redondeamos \space al \space valor \space superior
+$$
+
+Ejemplo: Encontrar el percentil 85°
+
+```{r}
+ejemplo4 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descriptiva\\Ejercicios.xlsx",
+                                sheet = "MP",
+                                rows = c(3:15),
+                                cols = c(2))
+ejemplo4
+```
+
+$$
+i = \left(\frac{p}{100}\right)n =\left(\frac{85}{100}\right)12 =  10.2 \sim 11 \rightarrow Posición = 2630
+$$
+
+Ejemplo: Encontrar el cuartil 2° 
+
+$$
+i = \left(\frac{p}{4}\right)n =\left(\frac{2}{4}\right)12 =  6 \\
+i = 6  \space e \space i+1=7 \rightarrow \frac{2390+2420}{2}= 2405
+$$
+
+Como se puede obsrvar el valor del denominador cambia depende de lo que buscamos:
+
+* Cuartil $Q_k = kn/4$
+* Quintil $Q_k = kn/5$
+* Decil $D_k = kn/10$
+* Percentil $P_k = kn/100$
+
+### Datos agrupados de forma puntual
+
+En ocasiones tenemos datos que se presentan agrupados de una manera puntual como vermos a continuación:
+
+```{r}
+ejemplo4 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descriptiva\\Ejercicios.xlsx",
+                                sheet = "MP",
+                                rows = c(19:26),
+                                cols = c(2:4))
+ejemplo4
+```
+
+Como se puede ver se tiene las frecuencias (f) y las frecuencias acumuladas (FA) en este caso se toma como referencia la FA superior para ubicar el fractil.
+
+Encontrar el $Q_4 = ?$
+
+$$
+\frac{kn}{4} = \frac{1 \times 60}{4} = 15 \rightarrow Posición \space FA \\
+Q_4 = 14
+$$
+
+Encontrar el $D_6 = ?$
+
+$$
+\frac{kn}{10} = \frac{6 \times 60}{10} = 36 \rightarrow Posición \space FA \\
+D_6 = 15
+$$
+
+Encontrar el $P_{87} = ?$
+
+$$
+\frac{kn}{100} = \frac{87 \times 60}{100} = 52.2 \rightarrow Posición \space FA \\
+P_{87} = 17
+$$
+
+### Datos agrupados en intervalos
+
+Para los datos agrupados en intervalos se va a utilizar dos metodologías en el caso de los cuartiles, dicho esto tenemos los siguientes datos:
+
+```{r}
+ejemplo5 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descriptiva\\Ejercicios.xlsx",
+                                sheet = "MP",
+                                rows = c(30:36),
+                                cols = c(2:4))
+ejemplo5
+```
+
+- Intervalo Mayor
+
+$Q_3 = ?$
+
+$$
+\frac{kn}{4} = \frac{3 \times 60}{4} = 45 \rightarrow Posición \space FA \\
+Q_{3} = 50
+$$
+
+- Segundo método
+
+$D_2 = ?$
+
+$$
+\frac{kn}{10} = \frac{2 \times 60}{10} = 12 \rightarrow Posición \space FA \\
+D_k = L_i + A \left(\frac{\frac{kn}{10}-F_{i-1}}{F_i-F_{i-1}}\right)\\
+$$
+
+* $L_i=$ Límite inferior de la posición de la FA
+* $F_i=$ FA superior
+* $F_{i-1}=$ FA inferior
+* $A=$ El ancho del intervalo
+
+$$
+D_2 = 40 + 5 \left(\frac{\frac{2*60}{10}-10}{22-10}\right) = 40.83\\
+$$
+
+Para los diferentes fractiles solo cambia el denominador de la formula $kn/10$
+
+### Gráficas 
+
+Uno de los aspectos mas importantes es la manera en que presentamos la información, y como primer punto veremos gráficos de variables nominales.
+
+#### Variables Nominales {.tabset .tabset-pills}
+
+Al momento de utilizar los siguientes gráficos debemos conocer los pros y contras de estos ya que en el caso de la gráfica de pastel podemos presentar bien los porcentajes y en el caso del gráfico de barras podemos representar el valor exacto, pero, el gráfico de pastel es mucho mejor presentando pocas categorías mientras que en el de barras se puede presentar muchas categorías más.
+
+##### Pastel
+
+```{r}
+df %>% 
+  select(Class, Freq) %>% 
+  group_by(Class) %>% 
+  summarise(Freq = sum(Freq)) %>% 
+  arrange(desc(Class)) %>%
+  mutate(prop = Freq / sum(df$Freq) *100) %>%
+  mutate(ypos = cumsum(prop)- 0.5*prop ) %>% 
+  ggplot(aes(x="", y=prop, fill=Class)) +
+  geom_bar(stat="identity", width=1, color = "white") +
+  coord_polar("y", start=0)+
+  theme_void()+
+  geom_text(aes(y = ypos, 
+                label = paste(round(prop, 0), "%", sep = "")),
+            color = "white", 
+            size=6) +
+  scale_fill_brewer(palette="Set1")+
+  labs(title = "Pasajeros del Titanic por Clase", fill = "Clase")+
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"))
+```
+
+
+##### Barras
+
+```{r}
+df %>% 
+  select(Class, Freq) %>% 
+  group_by(Class) %>% 
+  summarise(Freq = sum(Freq)) %>% 
+  arrange(-Freq) %>%
+  ggplot(aes(x = factor(Class), y = Freq, fill = factor(Class)))+
+  geom_bar(stat = "identity", width = .8)+
+  theme_minimal()+
+  scale_fill_brewer(palette="Set1")+
+  labs(title = "Pasajeros del Titanic por Clase", fill = "Clase",
+       x = "Clase",
+       y = "Frecuencia")+
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"))+
+  geom_text(aes(label=Freq), hjust = 1.5, col = "white", vjust = .3)+
+  scale_y_continuous(limits = c(0,900), breaks = seq(0,900,100))+
+  coord_flip()
+```
+
+
+#### Variables continuas y discretas {.tabset .tabset-pills}
+
+Para la siguiente representación utilizare la base de datos de Iris la cual es una base muy conocida del tipo de plantas su ancho y largo del sepalo y petalo.
+
+##### Histograma
+
+* Se puede representar numerosas observaciones
+* Las barras retratan las frecuencias posibles de una variable
+* Tiene una escala continua suyacente
+* De aquí se deriva la famosa campana de Gauss
+
+```{r}
+iris %>% filter(Species== "setosa") %>% 
+  ggplot(aes(x = Sepal.Length))+
+  geom_histogram(alpha = 0.8, color = "black", fill = "#5ab4ac", binwidth = .1)+
+  labs(title = "Largo del Sepalo de la Especie Setosa")
+```
+
+
+##### Ojiva
+
+* Nos muestra los valores de las frecuencias acumuladas en un gráfico de lineas.
+
+```{r}
+ejemplo5 <- arrange(ejemplo5, F);ejemplo5
+
+ggplot(ejemplo5,aes(x = ejemplo5[,1],
+                    y = ejemplo5[,3], 
+                    group = 1L, 
+                    ymax = max(ejemplo5[,3]+10)))+
+  geom_line(size = 0.5)+
+  geom_point(size = 2.5)+
+  labs(title = "Gráfico de Ojiva",
+       y = "Frecuencias Acumuladas",
+       x = "Edades")+
+  scale_y_continuous(breaks = seq(0,70,10))+
+  ggthemes::theme_pander()+
+  theme(plot.title = element_text(hjust = 0.5, size = 16))+
+  geom_text(aes(label = ejemplo5[,3]), vjust = -1)
+```
+
+##### Tallo y Hojas
+
+* Separa los valores en dos partes: tallo(decenas), hojas(unidades)
+* Permite ver la distribución
+* Podemos ver la información original
+* Podemos reconstruir toda la lista original
+* Es una forma fácil de ordenar
+* Los renglones son iguales a las barras
+* Al menos 5 a 20 clases
+
+```{r}
+datos <- c(9,12, 15, 16, 21, 24, 29, 29, 30, 31, 32, 33, 33, 32, 34, 34, 40, 
+           45, 46, 49, 49,50, 52, 58, 60, 63, 64, 70, 70)
+stem(datos, scale = 1)
+```
+
+
+##### Cajas y Bigotes
+
+El gráfico de cajas y bigotes nos logra mostrar varios datos como:
+
+* Valor máximo y valor mínimo
+* Cuartil 1, Cuartil 2, Cuartil 3
+* Mediana
+* Rango intercuartilico $IQR =Q_3-Q_1$
+* Valores extremos $Q_3+1.5(IQR)$ y $Q_1-1.5(IQR)$
+* Panorama Completo de la variable
+
+```{r}
+iris %>% 
+  ggplot(aes(x = Species, y = Sepal.Length, fill = Species))+
+  geom_boxplot(outlier.color = "red",
+               outlier.size = 2, 
+               alpha = .8, 
+               )+
+  scale_fill_brewer(palette="Set1")+
+  ggthemes::theme_pander()+
+  labs(title = "Largo del Sepalo por Especie",
+       x = "Especies",
+       y = "Largo del Sepalo")+
+  theme(legend.position="none",
+        plot.title = element_text(hjust = .5))+
+  scale_y_continuous(breaks = seq(0,8,.5))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
