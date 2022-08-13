@@ -4,16 +4,14 @@ output:
   html_document:
     toc_float: true
     toc: true
-    code_folding: show #show
+    code_folding: hide #show
+    df_print: paged
     theme:
-      bootswatch: "lux"
+      bootswatch: lux
       font_scale: 1
-      enable-gradients: "TRUE"
-      enable-shadows: "TRUE"
-      base_font:
-        google: Prompt
-      heading_font:
-        google: Proza Libre
+      enable-gradients: TRUE
+      enable-shadows: TRUE
+      progress-bar-bg: "orange"
 editor_options: 
   chunk_output_type: console
 ---
@@ -24,11 +22,15 @@ if (requireNamespace("thematic"))
 knitr::opts_chunk$set(fig.retina=2, 
                       message = FALSE,
                       warning = FALSE,
-                      fig.dim = c(6,4))
+                      comment = "",
+                      fig.align = "center",
+                      out.width="65%")
 library(ggplot2)
 library(dplyr)
 df<- data.frame(Titanic)
 ```
+
+## Comprendiendo las bases{#aqui}
 
 La **Estadística** es una ciencia que recoge, organiza, presenta, analiza e interpreta datos con el fin de propiciar la toma de decisiones más eficaz. 
 
@@ -46,9 +48,9 @@ $$
 s= desviación \space estándar \space muestral
 $$
 
-> Para los ejemplos realizaremos un análisis al dataset de Titanic el cual contiene información de los pasajeros del RMS Titanic el transatlántico que se hundió en abril de 1912.
+> Para los ejemplos realizaremos un análisis al dataset de Titanic el cual contiene información de los pasajeros del RMS Titanic el transatlántico que se hundió en abril de 1912, además se utilizará datos creados para cada uno de los casos. 
 
-## Medidas de tendencia central {.tabset .tabset-pills}
+## Medidas de tendencia central {.tabset}
 
 Estas medidas hacen referencia a la centralidad de una variable.
 
@@ -215,10 +217,10 @@ $$
 M_o = L_{M_o}+\left(\frac{d_1}{d_1+d_2}\right)w
 $$
 
-* $L_{M_o} = $Limite inferior de la clase modal
-* $d_1 = $Frecuencia de la clase modal $-$ Una frecuencia antes de la clase modal
-* $d_2 = $Frecuencia de la clase modal $-$ Una frecuencia despues de la clase modal
-* $w = $Ancho del intervalo o $L_s-L_i$
+* $L_{M_o} = Limite \space inferior \space de \space la \space clase \space modal$
+* $d_1 = Frecuencia \space de \space la \space clase \space modal - Una \space frecuencia \space antes \space de \space la \space clase \space modal$
+* $d_2 = Frecuencia \space de \space la \space clase \space modal - Una \space frecuencia \space despues \space de \space la \space clase \space modal$
+* $w = Ancho \space del \space intervalo \space o \space L_s-L_i$
 
 Según los datos proporcionados tenemos lo siguiente:
 
@@ -241,11 +243,11 @@ $$
 \tilde{m}= \left(\frac{\frac{(n+1)}{2}-(F+1)}{f_m}\right)w+L_m
 $$
 
-* $n = $ Número total de elementos de la distribución
-* $F = $ La suma de las frecuencias antes de la clase de la mediana
-* $f_m = $ Frecuencia de la clase de la mediana
-* $w = $ Ancho del intervalo
-* $L_m = $ Límite inferior de la clase de la mediana
+* $n = Número \space total \space de \space elementos \space de \space la \space distribución$ 
+* $F =  La \space suma \space de \space las \space frecuencias \space antes \space de \space la \space clase \space de \space la \space mediana$
+* $f_m =  Frecuencia \space de \space la \space clase \space de \space la \space mediana$
+* $w = Ancho \space del \space intervalo$ 
+* $L_m = Límite \space inferior \space de \space la \space clase \space de \space la \space mediana$ 
 
 Según los datos proporcionados tenemos lo siguiente:
 
@@ -269,9 +271,9 @@ $$
 \tilde{X} = \frac{\sum (f \times x_i)}{n}
 $$
 
-* $n = $ Número de observaciones
-* $f = $ Frecuencia de las observaciones
-* $x_i = $ Marca de clase o punto medio de los intervalos
+* $n = Número \space de \space observaciones$ 
+* $f = Frecuencia \space de \space las \space observaciones$ 
+* $x_i = Marca \space de \space clase \space o \space punto \space medio \space de \space los \space intervalos$ 
 
 Según los datos proporcionados tenemos lo siguiente:
 
@@ -484,26 +486,72 @@ Para la siguiente representación utilizare la base de datos de Iris la cual es 
 
 ##### Histograma
 
+::::::{.columns}
+
+:::{.column width="40%"}
+\
+
 * Se puede representar numerosas observaciones
 * Las barras retratan las frecuencias posibles de una variable
 * Tiene una escala continua suyacente
 * De aquí se deriva la famosa campana de Gauss
+:::
 
-```{r}
+:::{.column width="5%"}
+\
+:::
+
+:::{.column width="55%"}
+```{r out.width="90%"}
 iris %>% filter(Species== "setosa") %>% 
   ggplot(aes(x = Sepal.Length))+
-  geom_histogram(alpha = 0.8, color = "black", fill = "#5ab4ac", binwidth = .1)+
-  labs(title = "Largo del Sepalo de la Especie Setosa")
+  geom_histogram(color = "white", fill = "#5ab4ac", binwidth = .1)+
+  labs(title = "Largo del Sepalo de la Especie Setosa",
+       y= "Frecuencia")+
+  scale_y_continuous(n.breaks = 10)+
+  scale_x_continuous(n.breaks = 10)+
+  geom_text(aes(x = 5.5, 
+                label = paste("Media =",
+                              round(mean(iris$Sepal.Length, na.rm = T),2),
+                              sep = " "), 
+                y = 7.5), 
+            angle = 0, 
+            color = "black",
+            vjust = 1.2,
+            size = 5)+
+  geom_text(aes(x = 5.5, 
+                label = paste("Mediana =",
+                              round(median(iris$Sepal.Length, na.rm = T),2),
+                              sep = " "), 
+                y = 7), 
+            angle = 0, 
+            color = "black",
+            vjust = 1.2,
+            size = 5)+
+  ggthemes::theme_pander()+
+  theme(axis.text = element_text(size = 10))
 ```
-
+:::
+::::::
 
 ##### Ojiva
 
 * Nos muestra los valores de las frecuencias acumuladas en un gráfico de lineas.
 
+:::::: {.columns}
+
+::: {.column width="40%"}
 ```{r}
 ejemplo5 <- arrange(ejemplo5, F);ejemplo5
+```
+:::
 
+::: {.column width="5%"}
+\
+:::
+
+::: {.column width="55%"}
+```{r out.width="90%"}
 ggplot(ejemplo5,aes(x = ejemplo5[,1],
                     y = ejemplo5[,3], 
                     group = 1L, 
@@ -518,8 +566,18 @@ ggplot(ejemplo5,aes(x = ejemplo5[,1],
   theme(plot.title = element_text(hjust = 0.5, size = 16))+
   geom_text(aes(label = ejemplo5[,3]), vjust = -1)
 ```
+:::
+::::::
+
+>Nota: Mostrar la tabla de datos y el gráfico de la tabla se considera una mala practica ya que de alguna manera estamos mostrando información duplicada, pero en este caso por temas de enseñanza se lo realizará así.
+
 
 ##### Tallo y Hojas
+
+::::::{.columns}
+
+:::{.column width="40%"}
+\
 
 * Separa los valores en dos partes: tallo(decenas), hojas(unidades)
 * Permite ver la distribución
@@ -528,17 +586,29 @@ ggplot(ejemplo5,aes(x = ejemplo5[,1],
 * Es una forma fácil de ordenar
 * Los renglones son iguales a las barras
 * Al menos 5 a 20 clases
+:::
 
+:::{.column width="5%"}
+\
+:::
+
+:::{.column width="55%"}
 ```{r}
 datos <- c(9,12, 15, 16, 21, 24, 29, 29, 30, 31, 32, 33, 33, 32, 34, 34, 40, 
            45, 46, 49, 49,50, 52, 58, 60, 63, 64, 70, 70)
 stem(datos, scale = 1)
 ```
-
+:::
+::::::
 
 ##### Cajas y Bigotes
 
 El gráfico de cajas y bigotes nos logra mostrar varios datos como:
+
+:::::: {.columns}
+
+::: {.column width="40%"}
+\
 
 * Valor máximo y valor mínimo
 * Cuartil 1, Cuartil 2, Cuartil 3
@@ -546,8 +616,14 @@ El gráfico de cajas y bigotes nos logra mostrar varios datos como:
 * Rango intercuartilico $IQR =Q_3-Q_1$
 * Valores extremos $Q_3+1.5(IQR)$ y $Q_1-1.5(IQR)$
 * Panorama Completo de la variable
+:::
 
-```{r}
+::: {.column width="5%"}
+\
+:::
+
+::: {.column width="55%"}
+```{r out.width="90%"}
 iris %>% 
   ggplot(aes(x = Species, y = Sepal.Length, fill = Species))+
   geom_boxplot(outlier.color = "red",
@@ -563,16 +639,7 @@ iris %>%
         plot.title = element_text(hjust = .5))+
   scale_y_continuous(breaks = seq(0,8,.5))
 ```
+:::
+::::::
 
-
-
-
-
-
-
-
-
-
-
-
-
+<a href="#aqui">Regresar al principio</a>
