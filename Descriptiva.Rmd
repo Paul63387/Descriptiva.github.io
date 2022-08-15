@@ -2,16 +2,18 @@
 title: "Estadística Descriptiva"
 output: 
   html_document:
+    includes:
+      before_body: style.html
     toc_float: true
     toc: true
+    toc_depth: 3
     code_folding: hide #show
     df_print: paged
     theme:
       bootswatch: lux
-      font_scale: 1
       enable-gradients: TRUE
       enable-shadows: TRUE
-      progress-bar-bg: "orange"
+      progress-bar-bg: orange
 editor_options: 
   chunk_output_type: console
 ---
@@ -27,14 +29,20 @@ knitr::opts_chunk$set(fig.retina=2,
                       out.width="65%")
 library(ggplot2)
 library(dplyr)
+library(hrbrthemes)
+#install.packages("ggtext")
+library(ggtext)
 df<- data.frame(Titanic)
 ```
 
-## Comprendiendo las bases{#aqui}
+\
 
-La **Estadística** es una ciencia que recoge, organiza, presenta, analiza e interpreta datos con el fin de propiciar la toma de decisiones más eficaz. 
+# Comprendiendo las bases {#aqui}
 
-Cuando realizamos calculos a una **Población** estos se llaman **Parámetros** los mismos que se representan con letras griegas, ejemplo:
+
+La <b><strong>Estadística</strong></b> es una ciencia que recoge, organiza, presenta, analiza e interpreta datos con el fin de propiciar la toma de decisiones más eficaz. 
+
+Cuando realizamos calculos a una <span style="color:red;font-weight:bold">Población</span> estos se llaman **Parámetros** los mismos que se representan con letras griegas, ejemplo:
 
 $$
 \mu = media \space poblacional \\
@@ -50,11 +58,11 @@ $$
 
 > Para los ejemplos realizaremos un análisis al dataset de Titanic el cual contiene información de los pasajeros del RMS Titanic el transatlántico que se hundió en abril de 1912, además se utilizará datos creados para cada uno de los casos. 
 
-## Medidas de tendencia central {.tabset}
+# Medidas de tendencia central {.tabset}
 
 Estas medidas hacen referencia a la centralidad de una variable.
 
-### Moda
+## Moda
 
 Es el valor que ocurre con mayor frecuencia.
 
@@ -64,20 +72,22 @@ df %>%
   summarise(Frecuencia = sum(Freq, na.rm = TRUE)) %>% 
   ggplot(aes(Class, Frecuencia, fill = Class, ymax= max(Frecuencia+50)))+
   geom_bar(stat = "identity")+
-  labs(title = "Frecuencia de Pasajeros según su Clase",
+  labs(title = "Frecuencia de <span style = 'color:#FF7400'>Pasajeros </span>según su Clase",
        x = "Clase",
        y = "Frecuencia",
-       subtitle = "La moda en este caso es la Crew o Tripulación",
+       subtitle = "<span style = 'color:#354f52'>La moda en este caso es la Crew o Tripulación</span>",
        fill = "Clase")+
   theme_minimal()+
   scale_fill_brewer(palette = "BrBG")+
   theme(plot.title = element_text(hjust = 0.5, size = 16))+
+  theme(plot.title = element_markdown(),
+        plot.subtitle = element_markdown())+
   geom_text(aes(label = Frecuencia, group = Class), vjust = -0.6, size = 3)+
   scale_y_continuous(limits = c(0,900), breaks = seq(0,900,100))
 ```
 
 
-### Mediana
+## Mediana
 
 Es el valor medio de las observaciones cuando estas se ordenan de menor a mayor. Es el valor de la mitad.
 
@@ -132,7 +142,7 @@ datos$Tachados <- tachados;datos
 
 Entre los dos valores se realizaria un promedio $\frac{Valor1+Valor2}{2}$. De esta manera se encuentra el valor medio de los datos con un $n = par$
 
-### Media
+## Media
 
 Este es el valor que indica el punto de balance de los datos.
 
@@ -155,7 +165,7 @@ mean(datos$Respuestas)
 
 > Resumir la información: Una de las preguntas que nos debemos hacer es ¿Cuándo calculamos cada medida?. La respuesta a esto es depende del tipo de variable que tengamos ya que si el dato es nominal u ordinal podemos calcular la moda pero no la media ni la mediana y si el datos es continuo o discreto podemos calcular las 3 medidas.
 
-## Valores atípicos
+# Valores atípicos
 
 Este es uno de los aspectos más importantes al momento de tratar de describir la información ya que esta se puede ver sesgada y presentar información falsa. Cuando se habla de datos atípicos existe un sinnúmero de métodos y formas de detectar y tratar este tipo de información al igual que la información NA (datos perdidos) y los NULL(ausencia de datos). Lo importante es saber que la **media** es una medida que es sensible a la presencia de datos atípicos para lo cual se debe elegir otras medidas que no sean afectadas por los datos atípicos como la **mediana**, esto es una pequeña porción de la llamada **estadística robusta**. Veamos un ejemplo:
 
@@ -198,7 +208,7 @@ c <- rbind(Con_Galton,Sin_Galton);c
 
 Entonces, como vemos en el primer caso la mediana se acerca al valor real de la media sin Galton y la mediana es la que es menos propensa a resivir un cambio por datos atípicos.
 
-## Datos Agrupados (DA) {.tabset .tabset-pills}
+# Datos Agrupados (DA) {.tabset .tabset-pills}
 
 En ocasiones tenemos información que nos entrega en datos agrupado, cuando este es el caso tenemos que tratarlos como tales y no como datos puntuales. A continuación veremos una tabla de datos agrupado.
 
@@ -210,7 +220,7 @@ ejemplo3 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descri
 ejemplo3
 ```
 
-### Moda DA
+## Moda DA
 
 La formula de la **moda** para datos agrupados es la siguiente:
 $$
@@ -235,7 +245,7 @@ $$
 
 La **moda** para los datos agrupados es de 119.
 
-### Mediana DA
+## Mediana DA
 
 La formula de la **mediana** para datos agrupados es la siguiente:
 
@@ -263,7 +273,7 @@ $$
 \tilde{m} = 126.33
 $$
 
-### Media DA
+## Media DA
 
 La formula de la **media** para datos agrupados es la siguiente:
 
@@ -301,7 +311,7 @@ $$
 \tilde{X} = \frac{\sum (f \times x_i)}{n} = \frac{85345.02}{600}=142.24
 $$
 
-## Medidas de Posición
+# Medidas de Posición (DA)
 
 En muchas ocasiones pueden ser llamados fractiles, fracción o proporción de los datos. para lo cual tienen nombres especiales como:
 
@@ -350,7 +360,7 @@ Como se puede obsrvar el valor del denominador cambia depende de lo que buscamos
 * Decil $D_k = kn/10$
 * Percentil $P_k = kn/100$
 
-### Datos agrupados de forma puntual
+## DA Forma Puntual
 
 En ocasiones tenemos datos que se presentan agrupados de una manera puntual como vermos a continuación:
 
@@ -385,7 +395,7 @@ $$
 P_{87} = 17
 $$
 
-### Datos agrupados en intervalos
+## DA Intervalos
 
 Para los datos agrupados en intervalos se va a utilizar dos metodologías en el caso de los cuartiles, dicho esto tenemos los siguientes datos:
 
@@ -426,15 +436,15 @@ $$
 
 Para los diferentes fractiles solo cambia el denominador de la formula $kn/10$
 
-### Gráficas 
+# Gráficas 
 
 Uno de los aspectos mas importantes es la manera en que presentamos la información, y como primer punto veremos gráficos de variables nominales.
 
-#### Variables Nominales {.tabset .tabset-pills}
+## Variables Nominales {.tabset .tabset-pills}
 
 Al momento de utilizar los siguientes gráficos debemos conocer los pros y contras de estos ya que en el caso de la gráfica de pastel podemos presentar bien los porcentajes y en el caso del gráfico de barras podemos representar el valor exacto, pero, el gráfico de pastel es mucho mejor presentando pocas categorías mientras que en el de barras se puede presentar muchas categorías más.
 
-##### Pastel
+### Pastel
 
 ```{r}
 df %>% 
@@ -458,33 +468,44 @@ df %>%
 ```
 
 
-##### Barras
+### Barras
 
 ```{r}
+df_orange <- df %>% 
+  select(Class, Freq) %>% 
+  group_by(Class) %>% 
+  summarise(Freq = sum(Freq)) %>% 
+  arrange(-Freq) %>% 
+  filter(Class == "Crew")
+clase_superior <- paste("Tripulación del titanic", df_orange$Freq ,sep = " ")
 df %>% 
   select(Class, Freq) %>% 
   group_by(Class) %>% 
   summarise(Freq = sum(Freq)) %>% 
   arrange(-Freq) %>%
   ggplot(aes(x = factor(Class), y = Freq, fill = factor(Class)))+
-  geom_bar(stat = "identity", width = .8)+
+  geom_bar(fill = "grey70",stat = "identity", width = .8)+
+  geom_bar(data = df_orange,inherit.aes = TRUE, fill = "#FF7400",stat = "identity", width = .8)+
   theme_minimal()+
-  scale_fill_brewer(palette="Set1")+
   labs(title = "Pasajeros del Titanic por Clase", fill = "Clase",
        x = "Clase",
        y = "Frecuencia")+
   theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"))+
-  geom_text(aes(label=Freq), hjust = 1.5, col = "white", vjust = .3)+
-  scale_y_continuous(limits = c(0,900), breaks = seq(0,900,100))+
-  coord_flip()
+  geom_text(data=df_orange ,
+            inherit.aes = TRUE,
+            aes(label=clase_superior), 
+            hjust = 1.4,
+            vjust =2,
+            col = "#FF7400")+
+  scale_y_continuous(limits = c(0,900), breaks = seq(0,900,100))
 ```
 
 
-#### Variables continuas y discretas {.tabset .tabset-pills}
+## Variables continuas y discretas {.tabset .tabset-pills}
 
 Para la siguiente representación utilizare la base de datos de Iris la cual es una base muy conocida del tipo de plantas su ancho y largo del sepalo y petalo.
 
-##### Histograma
+### Histograma
 
 ::::::{.columns}
 
@@ -534,7 +555,7 @@ iris %>% filter(Species== "setosa") %>%
 :::
 ::::::
 
-##### Ojiva
+### Ojiva
 
 * Nos muestra los valores de las frecuencias acumuladas en un gráfico de lineas.
 
@@ -572,7 +593,7 @@ ggplot(ejemplo5,aes(x = ejemplo5[,1],
 >Nota: Mostrar la tabla de datos y el gráfico de la tabla se considera una mala practica ya que de alguna manera estamos mostrando información duplicada, pero en este caso por temas de enseñanza se lo realizará así.
 
 
-##### Tallo y Hojas
+### Tallo y Hojas
 
 ::::::{.columns}
 
@@ -601,7 +622,7 @@ stem(datos, scale = 1)
 :::
 ::::::
 
-##### Cajas y Bigotes
+### Cajas y Bigotes
 
 El gráfico de cajas y bigotes nos logra mostrar varios datos como:
 
