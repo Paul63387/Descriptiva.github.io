@@ -58,11 +58,13 @@ $$
 
 > Para los ejemplos realizaremos un análisis al dataset de Titanic el cual contiene información de los pasajeros del RMS Titanic el transatlántico que se hundió en abril de 1912, además se utilizará datos creados para cada uno de los casos. 
 
-# Medidas de tendencia central {.tabset}
+# Medidas de tendencia central
+
+## Datos Puntuales
 
 Estas medidas hacen referencia a la centralidad de una variable.
 
-## Moda
+### Moda
 
 Es el valor que ocurre con mayor frecuencia.
 
@@ -87,7 +89,7 @@ df %>%
 ```
 
 
-## Mediana
+### Mediana
 
 Es el valor medio de las observaciones cuando estas se ordenan de menor a mayor. Es el valor de la mitad.
 
@@ -142,7 +144,7 @@ datos$Tachados <- tachados;datos
 
 Entre los dos valores se realizaria un promedio $\frac{Valor1+Valor2}{2}$. De esta manera se encuentra el valor medio de los datos con un $n = par$
 
-## Media
+### Media
 
 Este es el valor que indica el punto de balance de los datos.
 
@@ -165,7 +167,7 @@ mean(datos$Respuestas)
 
 > Resumir la información: Una de las preguntas que nos debemos hacer es ¿Cuándo calculamos cada medida?. La respuesta a esto es depende del tipo de variable que tengamos ya que si el dato es nominal u ordinal podemos calcular la moda pero no la media ni la mediana y si el datos es continuo o discreto podemos calcular las 3 medidas.
 
-# Valores atípicos
+## Valores atípicos
 
 Este es uno de los aspectos más importantes al momento de tratar de describir la información ya que esta se puede ver sesgada y presentar información falsa. Cuando se habla de datos atípicos existe un sinnúmero de métodos y formas de detectar y tratar este tipo de información al igual que la información NA (datos perdidos) y los NULL(ausencia de datos). Lo importante es saber que la **media** es una medida que es sensible a la presencia de datos atípicos para lo cual se debe elegir otras medidas que no sean afectadas por los datos atípicos como la **mediana**, esto es una pequeña porción de la llamada **estadística robusta**. Veamos un ejemplo:
 
@@ -208,7 +210,7 @@ c <- rbind(Con_Galton,Sin_Galton);c
 
 Entonces, como vemos en el primer caso la mediana se acerca al valor real de la media sin Galton y la mediana es la que es menos propensa a resivir un cambio por datos atípicos.
 
-# Datos Agrupados (DA) {.tabset .tabset-pills}
+## Datos Agrupados (DA) {.tabset .tabset-pills}
 
 En ocasiones tenemos información que nos entrega en datos agrupado, cuando este es el caso tenemos que tratarlos como tales y no como datos puntuales. A continuación veremos una tabla de datos agrupado.
 
@@ -220,7 +222,7 @@ ejemplo3 <- openxlsx::read.xlsx("C:\\Users\\Criss\\Documents\\Complexivo\\Descri
 ejemplo3
 ```
 
-## Moda DA
+### Moda DA
 
 La formula de la **moda** para datos agrupados es la siguiente:
 $$
@@ -245,7 +247,7 @@ $$
 
 La **moda** para los datos agrupados es de 119.
 
-## Mediana DA
+### Mediana DA
 
 La formula de la **mediana** para datos agrupados es la siguiente:
 
@@ -273,7 +275,7 @@ $$
 \tilde{m} = 126.33
 $$
 
-## Media DA
+### Media DA
 
 La formula de la **media** para datos agrupados es la siguiente:
 
@@ -663,4 +665,11 @@ iris %>%
 :::
 ::::::
 
+# Momentos
+
+
+# Sesgo
+
+
+# Curtosis
 <a href="#aqui">Regresar al principio</a>
